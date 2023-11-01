@@ -9,11 +9,28 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe").imageScale(.large).foregroundStyle(.brown)
-            Text("Hello, world!").padding()
+        HStack {
+            CardView(isFaceUp: false)
+            CardView()
+            CardView()
         }
-        .font(.largeTitle)
+        .foregroundColor(.orange)
+        .padding()
+    }
+}
+
+struct CardView: View {
+    var isFaceUp: Bool = true
+    var body: some View {
+        ZStack {
+            if isFaceUp {
+                RoundedRectangle(cornerSize: CGSize(width: 20, height: 20)).foregroundColor(.white)
+                RoundedRectangle(cornerSize: /*@START_MENU_TOKEN@*/CGSize(width: 20, height: 10)/*@END_MENU_TOKEN@*/, style: .continuous).strokeBorder(style: StrokeStyle(lineWidth: 5))
+                Text("🏀")
+            } else {
+                RoundedRectangle(cornerSize: /*@START_MENU_TOKEN@*/CGSize(width: 20, height: 10)/*@END_MENU_TOKEN@*/)
+            }
+        }
     }
 }
 
