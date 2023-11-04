@@ -15,14 +15,33 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State var cardCount: Int = 3
     var body: some View {
-        HStack {
-            let emojis: [String] = ["🐝", " 🦆", "🐼"]
-            CardView(isFaceUp: true, content: emojis[0])
-            CardView(isFaceUp: true, content: emojis[1])
-            CardView(isFaceUp: true, content: emojis[2])
-        }.foregroundColor(.orange)
-            .padding()
+        VStack {
+            HStack {
+                let emojis: [String] = ["🐝", " 🦆", "🐼", "⚽️", "🪐", "🍗"]
+                ForEach(0..<cardCount, id: \.self) { index in
+                    CardView(content: emojis[index])
+                }
+            }.foregroundColor(.orange)
+                
+            HStack {
+                Button(action: {
+                    cardCount += 1
+                }, label: {
+                    Image(systemName: "plus.circle")
+                })
+                .imageScale(.large)
+                Spacer()
+                Button(action: {
+                    cardCount -= 1
+                }, label: {
+                    Image(systemName: "minus.circle")
+                })
+                .imageScale(.large)
+            }
+        }.padding()
+            
     }
 }
 
