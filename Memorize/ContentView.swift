@@ -16,37 +16,50 @@ import SwiftUI
 
 struct ContentView: View {
     @State var cardCount: Int = 3
+    let emojis: [String] = ["🐝", " 🦆", "🐼", "⚽️", "🪐", "🍗", "🏹", "🍩", "🦷"]
     var body: some View {
         VStack {
-            HStack {
-                let emojis: [String] = ["🐝", " 🦆", "🐼", "⚽️", "🪐", "🍗"]
-                ForEach(0..<cardCount, id: \.self) { index in
-                    CardView(content: emojis[index])
-                }
-            }.foregroundColor(.orange)
-                
-            HStack {
-                Button(action: {
-                    cardCount += 1
-                }, label: {
-                    Image(systemName: "plus.circle")
-                })
-                .imageScale(.large)
-                Spacer()
-                Button(action: {
-                    cardCount -= 1
-                }, label: {
-                    Image(systemName: "minus.circle")
-                })
-                .imageScale(.large)
-            }
+            cards
+            cardCountAdjusters
         }.padding()
-            
+    }
+    
+    var cardCountAdjusters: some View {
+        HStack {
+            cardAdder
+            Spacer()
+            cardRemover
+        }
+    }
+    
+    var cards: some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))]) {
+
+            ForEach(0..<cardCount, id: \.self) { index in
+                CardView(content: emojis[index])
+            }
+        }.foregroundColor(.orange)
+    }
+    
+    func cardCountAdjuster(by offset: Int, symbol: String) -> some View {
+        Button(action: {
+            cardCount += offset
+            }, label: {
+            Image(systemName: symbol)
+            }).disabled(cardCount + offset < 1 || cardCount + offset > emojis.count)
+        .imageScale(.large)
+    }
+    
+    var cardAdder: some View {
+        cardCountAdjuster(by: 1, symbol: "plus.circle")
+    }
+    var cardRemover: some View {
+        cardCountAdjuster(by: -1, symbol: "minus.circle")
     }
 }
 
 struct CardView: View {
-    @State var isFaceUp: Bool = false
+    @State var isFaceUp: Bool = true
     var content: String
     var body: some View {
         /*
@@ -60,7 +73,7 @@ struct CardView: View {
                 base.stroke(style: StrokeStyle(lineWidth: 5))
                 Text(content).font(.largeTitle)
             } else {
-                base.fill().foregroundColor(.orange)
+                base.fill().foregroundColor(.orange).opacity(isFaceUp ? 0 : 1)
             }
         }.onTapGesture {
             isFaceUp.toggle()
