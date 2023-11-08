@@ -15,13 +15,31 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State var cardCount: Int = 3
-    let emojis: [String] = ["🐝", " 🦆", "🐼", "⚽️", "🪐", "🍗", "🏹", "🍩", "🦷"]
+    @State var cardCount: Int = 6
+    @State var emojis: [String] = ["🐝", " 🦆", "🐼", "⚽️", "🐼", "⚽️"]
+    //Initialize emojis for different themes
+    let cars_theme: [String] = ["🚒", "🏎️", "🚑", "🚓", "🚜", "🚒", "🏎️", "🚑", "🚓",]
+    let space_theme: [String] = ["🌎", "🌞", "🌙", "🪐", "☄️", "🌞", "🌙", "🪐", "☄️"]
+    let shapes_theme: [String] = ["🛑", "🔱", "🌀", "♣️", "♖", "🔱", "🌀", "♣️", "♖"]
+    let random_theme: [String] = ["🐝", " 🦆", "🐼", "⚽️", "🍗", "🏹", "🍩", "🦷", " 🦆", "🐼", "⚽️", "🍗"]
+    
+    @State var deviceOrientation: UIDeviceOrientation = .portrait
+    
     var body: some View {
-        VStack {
-            cards
-            cardCountAdjusters
-        }.padding()
+        NavigationView {
+            VStack {
+                cards
+                Spacer(minLength: 20)
+                themeButtons
+                cardCountAdjusters
+            }.padding().font(.largeTitle)
+                .navigationTitle("Memorize !")
+                .navigationBarTitleDisplayMode(.large)
+                .onAppear {self.deviceOrientation = UIDevice.current.orientation}
+                .onChange(of: UIDevice.current.orientation) {
+                    newOrientation in self.deviceOrientation = newOrientation
+                }
+        }
     }
     
     var cardCountAdjusters: some View {
@@ -33,13 +51,37 @@ struct ContentView: View {
     }
     
     var cards: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))]) {
-
-            ForEach(0..<cardCount, id: \.self) { index in
-                CardView(content: emojis[index])
+        //Creating buttons for the theme selection
+        ScrollView {
+            
+            let columns = [GridItem(.adaptive(minimum: deviceOrientation.isLandscape ? 150:115))]
+            
+            LazyVGrid(columns: columns, spacing: deviceOrientation.isLandscape ? 20:10) {
+                
+                ForEach(0..<cardCount, id: \.self) { index in
+                    CardView(content: emojis[index]).aspectRatio(2/3, contentMode: .fit).padding()
+                }
             }
+            
         }.foregroundColor(.orange)
     }
+
+    // Theme Buttons as a separate computed property
+        var themeButtons: some View {
+            HStack {
+                themeButton(action: { emojis = cars_theme.shuffled() }, systemIcon: "car.circle.fill")
+                themeButton(action: { emojis = shapes_theme.shuffled() }, systemIcon: "square.on.square.squareshape.controlhandles")
+                themeButton(action: { emojis = space_theme.shuffled() }, systemIcon: "globe.americas.fill")
+                themeButton(action: { emojis = random_theme.shuffled() }, systemIcon: "lightspectrum.horizontal")
+            }
+        }
+        
+        // Helper method to create theme button
+        func themeButton(action: @escaping () -> Void, systemIcon: String) -> some View {
+            Button(action: action) {
+                Image(systemName: systemIcon)
+            }
+        }
     
     func cardCountAdjuster(by offset: Int, symbol: String) -> some View {
         Button(action: {
@@ -59,7 +101,7 @@ struct ContentView: View {
 }
 
 struct CardView: View {
-    @State var isFaceUp: Bool = true
+    @State var isFaceUp: Bool = false
     var content: String
     var body: some View {
         /*
